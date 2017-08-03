@@ -5,14 +5,12 @@
 <dom-module id="dom-flip">
     <template>
         <style>
-            span ::slotted(.[[className]]) {
+            :host ::slotted(.[[className]]) {
                 transition: transform [[easing]] [[durationMs]]ms;
             }
         </style>
 
-        <span>
-            <slot id="inner"></slot>
-        </span>
+        <slot id="inner"></slot>
     </template>
 </dom-module>
 

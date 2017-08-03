@@ -81,34 +81,15 @@
                 },
 
                 /**
-                 * The debouncer for the animate method.
-                 */
-                _animateChangedDebouncer: {
-                    type: Polymer.Async.Debouncer
-                },
-
-                /**
                  * The positions of the child elements relative to this element.
+                 *
+                 * Keyed by their respective `attrName`.
+                 *
+                 * @type Object
                  */
                 _childPositions: {
                     type: Object,
                     value: () => Object.create(null)
-                },
-
-                /**
-                 * The listener function for dom changes.
-                 */
-                _listener: {
-                    type: Function
-                },
-
-                /**
-                 * The timeout handles for the function that removes the animatable
-                 * class when an item has finished transitioning.
-                 */
-                _removeTimeouts: {
-                    type: Array,
-                    value: () => []
                 }
             };
         }
@@ -117,6 +98,7 @@
             super();
 
             this._listener = () => this._domChanged();
+            this.__removeTimeouts = [];
         }
 
         ready() {
@@ -131,15 +113,22 @@
             this._observer.disconnect();
         }
 
+        /**
+         * Animates all elements that changed their position since the last time
+         * they are checked.
+         *
+         * @param newData Object the new position data.
+         * @private
+         */
         _animateChanged(newData) {
             if (!newData) {
                 return;
             }
 
-            for (let t of this._removeTimeouts) {
+            for (let t of this.__removeTimeouts) {
                 clearTimeout(t);
             }
-            this._removeTimeouts = [];
+            this.__removeTimeouts = [];
 
             for (let key in newData) {
                 const old = this._childPositions[key];
@@ -172,7 +161,7 @@
                             () => elem.classList.remove(this.className),
                             this.durationMs
                         );
-                        this._removeTimeouts.push(t);
+                        this.__removeTimeouts.push(t);
                     });
                 });
             }
@@ -180,6 +169,12 @@
             this._childPositions = newData;
         }
 
+        /**
+         * Collects the relative positions of all child elements in an object.
+         *
+         * @return {Object} the relative positions.
+         * @private
+         */
         _collectPositions() {
             const values = Object.create(null);
             const bbox = this.getBoundingClientRect();
@@ -200,16 +195,29 @@
             return values;
         }
 
+        /**
+         * DOM changed event handler.
+         *
+         * @private
+         */
         _domChanged() {
-            this._animateChangedDebouncer = Polymer.Debouncer.debounce(
-                this._animateChangedDebouncer,
+            this.__animateChangedDebouncer = Polymer.Debouncer.debounce(
+                this.__animateChangedDebouncer,
                 Polymer.Async.microTask,
                 () => this._animateChanged(this._collectPositions())
             );
 
-            Polymer.enqueueDebouncer(this._animateChangedDebouncer);
+            Polymer.enqueueDebouncer(this.__animateChangedDebouncer);
         }
 
+        /**
+         * Generates a CSS `translate`-rule compatible string that does a 2D transform.
+         *
+         * @param dx Number the X delta
+         * @param dy Number the Y delta
+         * @return {string} the CSS rule
+         * @private
+         */
         static _genTransformString(dx, dy) {
             return `translate(${dx}px, ${dy}px)`;
         }

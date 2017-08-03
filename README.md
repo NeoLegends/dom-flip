@@ -1,5 +1,7 @@
 # \<dom-flip\>
-🔀 FLIP move for Polymer v2!
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/Festify/dom-flip)
+
+🔀 Animate all the lists! FLIP move for Polymer v2!
 
 ## Installation
 This element lives on bower. Install with `bower install --save dom-flip`.
@@ -19,4 +21,7 @@ To be able to correlate changes in the model to changes to the DOM, this element
 </dom-flip>
 ```
 
-Although we wish it did, this element will not work with `<iron-list>` due to the virtualization.
+Although we wish it did, this element will not work with `<iron-list>` due to the virtualization. Maybe this can be fixed in the future.
+
+## License
+MIT

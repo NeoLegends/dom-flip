@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>dom-flip demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../polymer/lib/elements/dom-repeat.html">
+    <link rel="import" href="../../paper-button/paper-button.html">
+    <link rel="import" href="../dom-flip.html">
+
+    <custom-style>
+      <style is="custom-style" include="demo-pages-shared-styles">
+      </style>
+    </custom-style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic dom-flip demo</h3>
+      <demo-snippet>
+        <template>
+          <dom-flip>
+            <p data-flip-id="1">When these Elements</p>
+            <p data-flip-id="2">change position,</p>
+            <p data-flip-id="3">or something is added in</p>
+            <p data-flip-id="3">between, they will animate.</p>
+          </dom-flip>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

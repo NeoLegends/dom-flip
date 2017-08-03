@@ -1,0 +1,219 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/utils/debounce.html">
+<link rel="import" href="../polymer/lib/utils/flattened-nodes-observer.html">
+
+<dom-module id="dom-flip">
+    <template>
+        <style>
+            span ::slotted(.[[className]]) {
+                transition: transform [[easing]] [[durationMs]]ms;
+            }
+        </style>
+
+        <span>
+            <slot id="inner"></slot>
+        </span>
+    </template>
+</dom-module>
+
+<script>
+    /**
+     * `dom-flip`
+     * FLIP move animations for Polymer v2.
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     * @see https://aerotwist.com/blog/flip-your-animations/
+     */
+    class DomFlip extends Polymer.Element {
+        static get is() {
+            return 'dom-flip';
+        }
+
+        static get properties() {
+            return {
+                /**
+                 * The name of the attribute to use as model ID.
+                 *
+                 * Defaults to `data-flip-id`.
+                 *
+                 * @type String
+                 */
+                attrName: {
+                    type: String,
+                    value: 'data-flip-id'
+                },
+
+                /**
+                 * The class name to apply when the elements are moving. This
+                 * only need be changed in case of conflicts.
+                 *
+                 * Defaults to `--transitioning`.
+                 *
+                 * @type String
+                 */
+                className: {
+                    type: String,
+                    value: '--transitioning'
+                },
+
+                /**
+                 * The animation duration.
+                 *
+                 * @type Number
+                 */
+                durationMs: {
+                    type: Number,
+                    value: 200
+                },
+
+                /**
+                 * The easing mode to use.
+                 *
+                 * Defaults to `ease-in-out`.
+                 *
+                 * @type String
+                 */
+                easing: {
+                    type: String,
+                    value: 'ease-in-out'
+                },
+
+                /**
+                 * The debouncer for the animate method.
+                 */
+                _animateChangedDebouncer: {
+                    type: Polymer.Async.Debouncer
+                },
+
+                /**
+                 * The positions of the child elements relative to this element.
+                 */
+                _childPositions: {
+                    type: Object,
+                    value: () => Object.create(null)
+                },
+
+                /**
+                 * The listener function for dom changes.
+                 */
+                _listener: {
+                    type: Function
+                },
+
+                /**
+                 * The timeout handles for the function that removes the animatable
+                 * class when an item has finished transitioning.
+                 */
+                _removeTimeouts: {
+                    type: Array,
+                    value: () => []
+                }
+            };
+        }
+
+        constructor() {
+            super();
+
+            this._listener = () => this._domChanged();
+        }
+
+        ready() {
+            super.ready();
+
+            this.addEventListener('dom-change', this._listener);
+            this._observer = new Polymer.FlattenedNodesObserver(this.$.inner, this._listener);
+        }
+
+        detached() {
+            this.removeEventListener('dom-change', this._listener);
+            this._observer.disconnect();
+        }
+
+        _animateChanged(newData) {
+            if (!newData) {
+                return;
+            }
+
+            for (let t of this._removeTimeouts) {
+                clearTimeout(t);
+            }
+            this._removeTimeouts = [];
+
+            for (let key in newData) {
+                const old = this._childPositions[key];
+                if (old === undefined) {
+                    continue;
+                }
+
+                const elem = this.querySelector(`[${this.attrName}='${key}']`);
+                if (!elem) {
+                    continue;
+                }
+
+                const [oldTop, oldLeft] = old;
+                const [newTop, newLeft] = newData[key];
+                const dT = oldTop - newTop;
+                const dL = oldLeft - newLeft;
+                if (dT === 0 && dL === 0) {
+                    continue;
+                }
+
+                requestAnimationFrame(() => {
+                    elem.classList.remove(this.className);
+                    elem.style.transform = DomFlip._genTransformString(dL, dT);
+
+                    requestAnimationFrame(() => {
+                        elem.classList.add(this.className);
+                        elem.style.transform = '';
+
+                        const t = setTimeout(
+                            () => elem.classList.remove(this.className),
+                            this.durationMs
+                        );
+                        this._removeTimeouts.push(t);
+                    });
+                });
+            }
+
+            this._childPositions = newData;
+        }
+
+        _collectPositions() {
+            const values = Object.create(null);
+            const bbox = this.getBoundingClientRect();
+            for (let elem of this.$.inner.assignedNodes()) {
+                // We might just get text nodes that have no attributes
+                if (typeof elem.getAttribute !== 'function') {
+                    continue;
+                }
+
+                const id = elem.getAttribute(this.attrName);
+                if (!id) {
+                    continue;
+                }
+
+                const elemBox = elem.getBoundingClientRect();
+                values[id] = [elemBox.top - bbox.top, elemBox.left - bbox.left];
+            }
+            return values;
+        }
+
+        _domChanged() {
+            this._animateChangedDebouncer = Polymer.Debouncer.debounce(
+                this._animateChangedDebouncer,
+                Polymer.Async.microTask,
+                () => this._animateChanged(this._collectPositions())
+            );
+
+            Polymer.enqueueDebouncer(this._animateChangedDebouncer);
+        }
+
+        static _genTransformString(dx, dy) {
+            return `translate(${dx}px, ${dy}px)`;
+        }
+    }
+
+    window.customElements.define(DomFlip.is, DomFlip);
+</script>

@@ -134,16 +134,16 @@
                     continue;
                 }
 
-                const elem = this.querySelector(`[${this.attrName}='${key}']`);
-                if (!elem) {
-                    continue;
-                }
-
                 const [oldTop, oldLeft] = old;
                 const [newTop, newLeft] = newData[key];
                 const dT = oldTop - newTop;
                 const dL = oldLeft - newLeft;
                 if (dT === 0 && dL === 0) {
+                    continue;
+                }
+
+                const elem = this.querySelector(`[${this.attrName}='${key}']`);
+                if (!elem) {
                     continue;
                 }
 

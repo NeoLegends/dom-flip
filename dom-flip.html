@@ -109,20 +109,23 @@
         constructor() {
             super();
 
-            this._listener = () => this._domChanged();
+            this.__listener = () => this.__domChanged();
             this.__removeTimeouts = [];
         }
 
         ready() {
             super.ready();
 
-            this.addEventListener('dom-change', this._listener);
-            this._observer = new Polymer.FlattenedNodesObserver(this.$.inner, this._listener);
+            this.addEventListener('dom-change', this.__listener);
+            this.__childObserver = new Polymer.FlattenedNodesObserver(
+                this.$.inner,
+                this.__listener
+            );
         }
 
         detached() {
-            this.removeEventListener('dom-change', this._listener);
-            this._observer.disconnect();
+            this.removeEventListener('dom-change', this.__listener);
+            this.__childObserver.disconnect();
         }
 
         /**
@@ -132,7 +135,7 @@
          * @param {Object} newData the new position data.
          * @private
          */
-        _animateChanged(newData) {
+        __animateChanged(newData) {
             if (!newData) {
                 return;
             }
@@ -185,7 +188,7 @@
          * @return {Object} the relative positions.
          * @private
          */
-        _collectPositions() {
+        __collectPositions() {
             const values = Object.create(null);
             const bbox = this.getBoundingClientRect();
             for (let elem of this.$.inner.assignedNodes()) {
@@ -210,7 +213,7 @@
          *
          * @private
          */
-        _domChanged() {
+        __domChanged() {
             if (!this.active) {
                 return;
             }
@@ -219,11 +222,11 @@
                 this.__collectPositionsDebouncer,
                 Polymer.Async.microTask,
                 () => {
-                    const positions = this._collectPositions();
+                    const positions = this.__collectPositions();
                     this.__animateChangedDebouncer = Polymer.Debouncer.debounce(
                         this.__animateChangedDebouncer,
                         Polymer.Async.animationFrame,
-                        () => this._animateChanged(positions)
+                        () => this.__animateChanged(positions)
                     );
                 }
             );

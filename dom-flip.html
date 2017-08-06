@@ -129,6 +129,17 @@
         }
 
         /**
+         * Refreshes the elements positions.
+         *
+         * Call this if you've made changes to the DOM while the `<dom-flip>` element
+         * was hidden. Otherwise it will incorrectly pick up the child element's positions
+         * on the next DOM change.
+         */
+        refresh() {
+            this._childPositions = this.__collectPositions();
+        }
+
+        /**
          * Animates all elements that changed their position since the last time
          * they are checked.
          *
@@ -238,7 +249,7 @@
          * @param {Number} dx the X delta
          * @param {Number} dy the Y delta
          * @return {string} the CSS rule
-         * @private
+         * @protected
          */
         static _genTransformString(dx, dy) {
             return `translate(${dx}px, ${dy}px)`;

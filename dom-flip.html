@@ -32,6 +32,20 @@
         static get properties() {
             return {
                 /**
+                 * Indicates whether the element will listen for changes and apply
+                 * animations.
+                 *
+                 * Disable this if you want to temporarily control the DOM-animations yourself.
+                 * Defaults to `true`.
+                 *
+                 * @type Boolean
+                 */
+                active: {
+                    type: Boolean,
+                    value: true
+                },
+
+                /**
                  * The name of the attribute to use as model ID.
                  *
                  * Defaults to `data-flip-id`.
@@ -115,7 +129,7 @@
          * Animates all elements that changed their position since the last time
          * they are checked.
          *
-         * @param newData Object the new position data.
+         * @param {Object} newData the new position data.
          * @private
          */
         _animateChanged(newData) {
@@ -199,6 +213,10 @@
          * @private
          */
         _domChanged() {
+            if (!this.active) {
+                return;
+            }
+
             this.__animateChangedDebouncer = Polymer.Debouncer.debounce(
                 this.__animateChangedDebouncer,
                 Polymer.Async.microTask,
@@ -211,8 +229,8 @@
         /**
          * Generates a CSS `translate`-rule compatible string that does a 2D transform.
          *
-         * @param dx Number the X delta
-         * @param dy Number the Y delta
+         * @param {Number} dx the X delta
+         * @param {Number} dy the Y delta
          * @return {string} the CSS rule
          * @private
          */

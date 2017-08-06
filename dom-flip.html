@@ -161,20 +161,18 @@
                     continue;
                 }
 
+                elem.classList.remove(this.className);
+                elem.style.transform = DomFlip._genTransformString(dL, dT);
+
                 requestAnimationFrame(() => {
-                    elem.classList.remove(this.className);
-                    elem.style.transform = DomFlip._genTransformString(dL, dT);
+                    elem.classList.add(this.className);
+                    elem.style.transform = '';
 
-                    requestAnimationFrame(() => {
-                        elem.classList.add(this.className);
-                        elem.style.transform = '';
-
-                        const t = setTimeout(
-                            () => elem.classList.remove(this.className),
-                            this.durationMs
-                        );
-                        this.__removeTimeouts.push(t);
-                    });
+                    const t = setTimeout(
+                        () => elem.classList.remove(this.className),
+                        this.durationMs
+                    );
+                    this.__removeTimeouts.push(t);
                 });
             }
 
@@ -217,13 +215,18 @@
                 return;
             }
 
-            this.__animateChangedDebouncer = Polymer.Debouncer.debounce(
-                this.__animateChangedDebouncer,
+            this.__collectPositionsDebouncer = Polymer.Debouncer.debounce(
+                this.__collectPositionsDebouncer,
                 Polymer.Async.microTask,
-                () => this._animateChanged(this._collectPositions())
+                () => {
+                    const positions = this._collectPositions();
+                    this.__animateChangedDebouncer = Polymer.Debouncer.debounce(
+                        this.__animateChangedDebouncer,
+                        Polymer.Async.animationFrame,
+                        () => this._animateChanged(positions)
+                    );
+                }
             );
-
-            Polymer.enqueueDebouncer(this.__animateChangedDebouncer);
         }
 
         /**

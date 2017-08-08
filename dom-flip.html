@@ -136,7 +136,7 @@
          * on the next DOM change.
          */
         refresh() {
-            this._childPositions = this.__collectPositions();
+            this._childPositions = this.__collectStyleData();
         }
 
         /**
@@ -199,7 +199,7 @@
          * @return {Object} the relative positions.
          * @private
          */
-        __collectPositions() {
+        __collectStyleData() {
             const values = Object.create(null);
             const bbox = this.getBoundingClientRect();
             for (let elem of this.$.inner.assignedNodes()) {
@@ -233,7 +233,7 @@
                 this.__collectPositionsDebouncer,
                 Polymer.Async.microTask,
                 () => {
-                    const positions = this.__collectPositions();
+                    const positions = this.__collectStyleData();
                     this.__animateChangedDebouncer = Polymer.Debouncer.debounce(
                         this.__animateChangedDebouncer,
                         Polymer.Async.animationFrame,

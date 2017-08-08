@@ -110,7 +110,7 @@
             super();
 
             this.__listener = () => this.__domChanged();
-            this.__removeTimeouts = [];
+            this.__cleanupTimeouts = [];
         }
 
         ready() {
@@ -151,10 +151,10 @@
                 return;
             }
 
-            for (let t of this.__removeTimeouts) {
+            for (let t of this.__cleanupTimeouts) {
                 clearTimeout(t);
             }
-            this.__removeTimeouts = [];
+            this.__cleanupTimeouts = [];
 
             for (let key in newData) {
                 const old = this._childPositions[key];
@@ -186,7 +186,7 @@
                         () => elem.classList.remove(this.className),
                         this.durationMs
                     );
-                    this.__removeTimeouts.push(t);
+                    this.__cleanupTimeouts.push(t);
                 });
             }
 

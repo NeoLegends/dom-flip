@@ -6,7 +6,8 @@
     <template>
         <style>
             :host ::slotted(.[[className]]) {
-                transition: transform [[easing]] [[durationMs]]ms;
+                transition: transform [[easing]] [[durationMs]]ms,
+                            opacity [[easing]] [[durationMs]]ms;
             }
         </style>
 
@@ -162,11 +163,14 @@
                     continue;
                 }
 
-                const [oldTop, oldLeft] = old;
-                const [newTop, newLeft] = newData[key];
-                const dT = oldTop - newTop;
-                const dL = oldLeft - newLeft;
-                if (dT === 0 && dL === 0) {
+                const n = newData[key];
+                const dT = old.top - n.top;
+                const dL = old.left - n.left;
+
+                // Animate only if there have been changes
+                if (dT === 0 && dL === 0 &&
+                    (old.scaleX / n.scaleX) === 1.0 &&
+                    (old.scaleY / n.scaleY) === 1.0) {
                     continue;
                 }
 
@@ -176,11 +180,21 @@
                 }
 
                 elem.classList.remove(this.className);
-                elem.style.transform = DomFlip._genTransformString(dL, dT);
+
+                elem.style.opacity = old.opacity;
+                elem.style.transform = DomFlip._genTransformString(
+                    dL, dT,
+                    old.scaleX, old.scaleY
+                );
 
                 requestAnimationFrame(() => {
                     elem.classList.add(this.className);
-                    elem.style.transform = '';
+
+                    elem.style.opacity = n.opacity;
+                    elem.style.transform = DomFlip._genTransformString(
+                        0, 0,
+                        n.scaleX, n.scaleY
+                    );
 
                     const t = setTimeout(
                         () => elem.classList.remove(this.className),
@@ -214,7 +228,21 @@
                 }
 
                 const elemBox = elem.getBoundingClientRect();
-                values[id] = [elemBox.top - bbox.top, elemBox.left - bbox.left];
+                const styles = window.getComputedStyle(elem);
+                let scaleX = 1.0;
+                let scaleY = 1.0;
+                const matches = styles.transform.match(DomFlip.TRANSFORM_REGEX);
+                if (matches) {
+                    [, scaleX, scaleY] = matches;
+                }
+
+                values[id] = {
+                    top: elemBox.top - bbox.top,
+                    left: elemBox.left - bbox.left,
+                    opacity: Number.parseFloat(styles.opacity),
+                    scaleX: Number.parseFloat(scaleX),
+                    scaleY: Number.parseFloat(scaleY)
+                };
             }
             return values;
         }
@@ -241,13 +269,16 @@
          *
          * @param {Number} dx the X delta
          * @param {Number} dy the Y delta
+         * @param {Number} sx the X scale
+         * @param {Number} sy the Y scale
          * @return {string} the CSS rule
          * @protected
          */
-        static _genTransformString(dx, dy) {
-            return `translate(${dx}px, ${dy}px)`;
+        static _genTransformString(dx, dy, sx, sy) {
+            return `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
         }
     }
 
+    DomFlip.TRANSFORM_REGEX = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
     window.customElements.define(DomFlip.is, DomFlip);
 </script>

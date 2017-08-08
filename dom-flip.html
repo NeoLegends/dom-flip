@@ -6,8 +6,8 @@
     <template>
         <style>
             :host ::slotted(.[[className]]) {
-                transition: transform [[easing]] [[durationMs]]ms,
-                            opacity [[easing]] [[durationMs]]ms;
+                transition: transform [[durationMs]]ms [[easing]] [[delay]]ms,
+                            opacity [[durationMs]]ms [[easing]] [[delay]]ms;
             }
         </style>
 
@@ -72,7 +72,21 @@
                 },
 
                 /**
-                 * The animation duration.
+                 * The animation delay in milliseconds.
+                 *
+                 * Defaults to 0.
+                 *
+                 * @type Number
+                 */
+                delay: {
+                    type: Number,
+                    value: 0
+                },
+
+                /**
+                 * The animation duration in milliseconds.
+                 *
+                 * Defaults to 200.
                  *
                  * @type Number
                  */

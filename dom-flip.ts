@@ -55,10 +55,10 @@ export default class DomFlip extends HTMLElement {
         return [
             'active',
             'attr-name',
-            'class-name',
             'delay-ms',
             'duration-ms',
             'easing',
+            'transition-class-name',
         ];
     }
 
@@ -81,16 +81,6 @@ export default class DomFlip extends HTMLElement {
      * @type String
      */
     attrName: string = 'data-flip-id';
-
-    /**
-     * The class name to apply when the elements are moving. This
-     * only need be changed in case of conflicts.
-     *
-     * Defaults to `transitioning`.
-     *
-     * @type String
-     */
-    className: string = 'transitioning';
 
     /**
      * The CSS animation delay in milliseconds.
@@ -118,6 +108,16 @@ export default class DomFlip extends HTMLElement {
      * @type String
      */
     easing: string = 'ease-in-out';
+
+    /**
+     * The class name to apply when the elements are moving. This
+     * only need be changed in case of conflicts.
+     *
+     * Defaults to `transitioning`.
+     *
+     * @type String
+     */
+    transitionClassName: string = 'transitioning';
 
     /**
      * Whether a dom change event handler is enqueued for the current animation frame.
@@ -169,10 +169,6 @@ export default class DomFlip extends HTMLElement {
                 this.attrName = newValue;
                 this._updateListeners();
                 break;
-            case 'class-name':
-                this.className = newValue;
-                this._render();
-                break;
             case 'delay-ms':
                 this.delayMs = Number(newValue);
                 this._render();
@@ -183,6 +179,10 @@ export default class DomFlip extends HTMLElement {
                 break;
             case 'easing':
                 this.easing = newValue;
+                this._render();
+                break;
+            case 'transition-class-name':
+                this.transitionClassName = newValue;
                 this._render();
                 break;
         }
@@ -212,19 +212,19 @@ export default class DomFlip extends HTMLElement {
                 continue;
             }
 
-            el.classList.remove(this.className);
+            el.classList.remove(this.transitionClassName);
 
             el.style.opacity = String(old.opacity);
             el.style.transform = generateTransformString(dL, dT, old.scaleX, old.scaleY);
 
             requestAnimationFrame(() => {
-                el.classList.add(this.className);
+                el.classList.add(this.transitionClassName);
 
                 el.style.opacity = String(n.opacity);
                 el.style.transform = generateTransformString(0, 0, n.scaleX, n.scaleY);
 
                 setTimeout(
-                    () => el.classList.remove(this.className),
+                    () => el.classList.remove(this.transitionClassName),
                     this.durationMs,
                 );
             });
@@ -331,7 +331,7 @@ export default class DomFlip extends HTMLElement {
     private _render() {
         this.shadowRoot!.innerHTML = `
             <style>
-                ::slotted(.${this.className}) {
+                ::slotted(.${this.transitionClassName}) {
                     transition: transform ${this.durationMs}ms ${this.easing} ${this.delayMs}ms,
                                 opacity ${this.durationMs}ms ${this.easing} ${this.delayMs}ms;
                 }

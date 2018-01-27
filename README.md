@@ -1,4 +1,6 @@
 # \<dom-flip\>
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/Festify/dom-flip.svg)](https://greenkeeper.io/)
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/Festify/dom-flip)
 
 🔀 Smooth list animation for web components.

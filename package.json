@@ -1,6 +1,6 @@
 {
   "name": "dom-flip",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "FLIP move for web components",
   "main": "dist/dom-flip.js",
   "repository": "https://github.com/Festify/dom-flip.git",

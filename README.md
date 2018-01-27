@@ -1,15 +1,17 @@
 # \<dom-flip\>
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/Festify/dom-flip)
 
-🔀 Animate all the lists! FLIP move for Web Components!
+🔀 Smooth list animation for web components.
+
+This element is an implementation of the [FLIP-technique](https://aerotwist.com/blog/flip-your-animations/) for arbitrary dom. Simply place it around your elements that you indend to move and they will smoothly slide over the screen.
 
 ## Installation
 This element lives on npm. Install with `yarn add dom-flip` or `npm install --save dom-flip`.
 
 ## Usage
-You can use this element together with any templatizing element that either modifies the DOM directly, or fires `dom-changed`-events, just like `<dom-repeat>` does.
+You can use this element together with any templatizing element that modifies the DOM. It is also special-cased to work with Polymer's `dom-repeat`. The animated elements must be direct children of the `dom-flip` element.
 
-To be able to correlate changes in the model to changes to the DOM, this element requires that you set an attribute on the child elements that is based on their model.
+To be able to correlate changes in the model to changes to the DOM, this element requires that you give every element a unique ID. This can be either an attribute, or a property.
 
 ```html
 <dom-flip>

@@ -15,6 +15,18 @@ interface ChildData {
 }
 
 /**
+ * All used attribute names.
+ */
+const enum AttributeNames {
+    Active = 'active',
+    AttrName = 'attr-name',
+    DelayMs = 'delay-ms',
+    DurationMs = 'duration-ms',
+    Easing = 'easing',
+    TransitionClassName = 'transition-class-name',
+}
+
+/**
  * The regex used to parse the transform matrix string.
  */
 const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
@@ -53,12 +65,12 @@ const isCloseTo = (actual: number, target: number, epsilon?: number) =>
 export default class DomFlip extends HTMLElement {
     static get observedAttributes(): string[] {
         return [
-            'active',
-            'attr-name',
-            'delay-ms',
-            'duration-ms',
-            'easing',
-            'transition-class-name',
+            AttributeNames.Active,
+            AttributeNames.AttrName,
+            AttributeNames.DelayMs,
+            AttributeNames.DurationMs,
+            AttributeNames.Easing,
+            AttributeNames.TransitionClassName,
         ];
     }
 
@@ -161,27 +173,27 @@ export default class DomFlip extends HTMLElement {
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         switch (name) {
-            case 'active':
+            case AttributeNames.Active:
                 this.active = !!newValue;
                 this._updateListeners();
                 break;
-            case 'attr-name':
+            case AttributeNames.AttrName:
                 this.attrName = newValue;
                 this._updateListeners();
                 break;
-            case 'delay-ms':
+            case AttributeNames.DelayMs:
                 this.delayMs = Number(newValue);
                 this._render();
                 break;
-            case 'duration-ms':
+            case AttributeNames.DurationMs:
                 this.durationMs = Number(newValue);
                 this._render();
                 break;
-            case 'easing':
+            case AttributeNames.Easing:
                 this.easing = newValue;
                 this._render();
                 break;
-            case 'transition-class-name':
+            case AttributeNames.TransitionClassName:
                 this.transitionClassName = newValue;
                 this._render();
                 break;

@@ -1,5 +1,3 @@
-import { html, render, TemplateResult } from 'lit-html';
-
 /**
  * Child metadata.
  */
@@ -17,14 +15,6 @@ interface ChildData {
 }
 
 /**
- * Determines whether a `Node` actually is an `HTMLElement` by looking for
- * the `Element.getAttribute`-function.
- *
- * @param x The dom Node to check.
- */
-const isElement = (x: Node): x is HTMLElement => (x as HTMLElement).style instanceof CSSStyleDeclaration;
-
-/**
  * The regex used to parse the transform matrix string.
  */
 const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
@@ -32,18 +22,25 @@ const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s
 /**
  * Generates a CSS `translate`-rule compatible string that does a 2D transform.
  *
- * @param {Number} dx the X delta
- * @param {Number} dy the Y delta
- * @param {Number} sx the X scale
- * @param {Number} sy the Y scale
+ * @param {number} dx the X delta
+ * @param {number} dy the Y delta
+ * @param {number} sx the X scale
+ * @param {number} sy the Y scale
  * @return {string} the CSS rule
  */
-function generateTransformString(
-    dx: number, dy: number,
-    sx: number, sy: number,
-): string {
-   return `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
-}
+const generateTransformString = (dx: number, dy: number, sx: number, sy: number) =>
+    `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+
+/**
+ * Determines whether the actual number lies within a close margin to the
+ * target number.
+ *
+ * @param {number} actual The number to check.
+ * @param {number} target The target number.
+ * @param {number} epsilon The allowed margin of error. Defaults to 1e-5
+ */
+const isCloseTo = (actual: number, target: number, epsilon?: number) =>
+    Math.abs(actual - target) <= (epsilon || 1e-5);
 
 /**
  * `dom-flip`
@@ -123,19 +120,19 @@ export default class DomFlip extends HTMLElement {
     easing: string = 'ease-in-out';
 
     /**
+     * Whether a dom change event handler is enqueued for the current animation frame.
+     */
+    private _animationEnqueued: boolean = false;
+
+    /**
      * The last known client rects of the children keyed by their ID.
      */
     private _childData: Map<string, [HTMLElement, ChildData]> = new Map();
 
     /**
-     * Whether a dom change event handler is enqueued for the current animation frame.
+     * The mutation observer listening for changes to the attributes of the child elements.
      */
-    private _domChangeHandlerEnqueued: boolean = false;
-
-    /**
-     * Whether a lit render is enqueued for the current microtask.
-     */
-    private _renderEnqueued: boolean = false;
+    private _childObserver: MutationObserver;
 
     /**
      * The shadow slot containing the children.
@@ -143,14 +140,15 @@ export default class DomFlip extends HTMLElement {
     private _slot: HTMLSlotElement;
 
     /**
-     * The bound event handler for the slotchange event.
+     * The bound event handler for mutation observer updating.
      */
-    private _slotHandler;
+    private _mutationObserverUpdateHandler;
 
     constructor() {
         super();
 
-        this._slotHandler = () => this._enqueueHandleDomChange();
+        this._childObserver = new MutationObserver(() => this._enqueueAnimateChangedElements());
+        this._mutationObserverUpdateHandler = () => this._updateMutationObserver();
         this.attachShadow({ mode: 'open' });
     }
 
@@ -158,82 +156,42 @@ export default class DomFlip extends HTMLElement {
         this._render();
 
         this._slot = this.shadowRoot!.querySelector('slot') as HTMLSlotElement;
-        this._updateEventHandler();
+        this._updateListeners();
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         switch (name) {
             case 'active':
                 this.active = !!newValue;
-                this._updateEventHandler();
+                this._updateListeners();
                 break;
             case 'attr-name':
                 this.attrName = newValue;
+                this._updateListeners();
                 break;
             case 'class-name':
                 this.className = newValue;
+                this._render();
                 break;
             case 'delay-ms':
                 this.delayMs = Number(newValue);
+                this._render();
                 break;
             case 'duration-ms':
                 this.durationMs = Number(newValue);
+                this._render();
                 break;
             case 'easing':
                 this.easing = newValue;
+                this._render();
                 break;
         }
-
-        this._enqueueRender();
-    }
-
-    /* Business logic */
-
-    /**
-     * Goes through the node's children and collects styling metadata in a map.
-     *
-     * @returns A map with styling data by child ID.
-     */
-    private _collectChildData(): Map<string, [HTMLElement, ChildData]> {
-        const bbox = this.getBoundingClientRect();
-        const map = new Map();
-
-        for (const el of this._slot.assignedNodes()) {
-            if (!isElement(el)) {
-                continue;
-            }
-
-            const id = el.getAttribute(this.attrName);
-            if (!id) {
-                continue;
-            }
-
-            const elemBox = el.getBoundingClientRect();
-            const styles = window.getComputedStyle(el);
-            let scaleX = '1.0';
-            let scaleY = '1.0';
-            const matches = styles.transform!.match(transformRegex);
-            if (matches) {
-                [, scaleX, scaleY] = matches;
-            }
-
-            const data = {
-                top: elemBox.top - bbox.top,
-                left: elemBox.left - bbox.left,
-                opacity: Number.parseFloat(styles.opacity || '1'),
-                scaleX: Number.parseFloat(scaleX),
-                scaleY: Number.parseFloat(scaleY),
-            };
-            map.set(id, [el, data]);
-        }
-
-        return map;
     }
 
     /**
-     * Updates the positions of the elements that have moved.
+     * Animates the transition of the elements that have moved.
      */
-    private _handleDomChange() {
+    private _animateChangedElements() {
         const newChildData = this._collectChildData();
 
         for (const [id, [el, n]] of newChildData.entries()) {
@@ -247,9 +205,10 @@ export default class DomFlip extends HTMLElement {
             const dL = old.left - n.left;
 
             // Animate only if there have been changes
-            if (dT === 0 && dL === 0 &&
-                (old.scaleX / n.scaleX) === 1.0 &&
-                (old.scaleY / n.scaleY) === 1.0) {
+            if (isCloseTo(dT, 0) &&
+                isCloseTo(dL, 0) &&
+                isCloseTo(old.scaleX / n.scaleX, 1) &&
+                isCloseTo(old.scaleY / n.scaleY, 1)) {
                 continue;
             }
 
@@ -274,34 +233,103 @@ export default class DomFlip extends HTMLElement {
         this._childData = newChildData;
     }
 
-    /* Utility methods */
+    /**
+     * Goes through the node's children and collects styling metadata in a map.
+     *
+     * @returns A map with styling data by child ID.
+     */
+    private _collectChildData(): Map<string, [HTMLElement, ChildData]> {
+        const bbox = this.getBoundingClientRect();
+        const map = new Map();
 
-    private _enqueueHandleDomChange() {
-        if (this._domChangeHandlerEnqueued) {
+        for (const el of this._slot.assignedNodes()) {
+            if (!(el instanceof HTMLElement)) {
+                continue;
+            }
+
+            const id = el.getAttribute(this.attrName);
+            if (!id) {
+                continue;
+            }
+
+            const elemBox = el.getBoundingClientRect();
+            const styles = window.getComputedStyle(el);
+            let scaleX = '1.0';
+            let scaleY = '1.0';
+            const matches = styles.transform!.match(transformRegex);
+            if (matches) {
+                [, scaleX, scaleY] = matches;
+            }
+
+            const data = {
+                top: elemBox.top - bbox.top,
+                left: elemBox.left - bbox.left,
+                opacity: Number.parseFloat(styles.opacity || '1'),
+                scaleX: Number.parseFloat(scaleX),
+                scaleY: Number.parseFloat(scaleY),
+            };
+
+            map.set(id, [el, data]);
+        }
+
+        return map;
+    }
+
+    /**
+     * Enqueues the animation of moved elements at animation frame timing.
+     */
+    private _enqueueAnimateChangedElements() {
+        if (this._animationEnqueued) {
             return;
         }
 
-        this._domChangeHandlerEnqueued = true;
+        this._animationEnqueued = true;
         requestAnimationFrame(() => {
-            this._domChangeHandlerEnqueued = false;
-            this._handleDomChange();
+            this._animationEnqueued = false;
+            this._animateChangedElements();
         });
     }
 
-    private _enqueueRender() {
-        if (this._renderEnqueued) {
+    /**
+     * Updates the registered event handlers, mutation observers and triggers animation..
+     */
+    private _updateListeners() {
+        this.removeEventListener('dom-change', this._mutationObserverUpdateHandler);
+        this._slot.removeEventListener('slotchange', this._mutationObserverUpdateHandler);
+        if (this.active) {
+            this.addEventListener('dom-change', this._mutationObserverUpdateHandler);
+            this._slot.addEventListener('slotchange', this._mutationObserverUpdateHandler);
+        }
+
+        this._updateMutationObserver();
+    }
+
+    /**
+     * Updates the mutation observer configuration and collects child position data,
+     * if necessary.
+     */
+    private _updateMutationObserver() {
+        this._childObserver.disconnect();
+
+        if (!this.active) {
             return;
         }
 
-        this._renderEnqueued = true;
-        Promise.resolve().then(() => {
-            this._render();
-            this._renderEnqueued = false;
-        });
+        this._slot.assignedNodes()
+            .filter(el => el instanceof HTMLElement)
+            .forEach(child => this._childObserver.observe(child, {
+                attributes: true,
+                attributeFilter: [this.attrName],
+            }));
+
+        this._enqueueAnimateChangedElements();
     }
 
+    /**
+     * Render the shadow dom contents.
+     */
     private _render() {
-        const result = html`
+        this.shadowRoot!.innerHTML = `
             <style>
                 ::slotted(.${this.className}) {
                     transition: transform ${this.durationMs}ms ${this.easing} ${this.delayMs}ms,
@@ -311,16 +339,6 @@ export default class DomFlip extends HTMLElement {
 
             <slot></slot>
         `;
-
-        render(result, this.shadowRoot!);
-    }
-
-    private _updateEventHandler() {
-        this._slot.removeEventListener('slotchange', this._slotHandler);
-
-        if (this.active) {
-            this._slot.addEventListener('slotchange', this._slotHandler);
-        }
     }
 }
 

@@ -226,12 +226,14 @@ export default class DomFlip extends HTMLElement {
 
             el.classList.remove(this.transitionClassName);
 
+            // Revert new layout into old positions
             el.style.opacity = String(old.opacity);
             el.style.transform = generateTransformString(dL, dT, old.scaleX, old.scaleY);
 
             requestAnimationFrame(() => {
                 el.classList.add(this.transitionClassName);
 
+                // Remove our reverts and let animation play
                 el.style.opacity = String(n.opacity);
                 el.style.transform = generateTransformString(0, 0, n.scaleX, n.scaleY);
 

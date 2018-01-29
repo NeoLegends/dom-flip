@@ -49,10 +49,10 @@ const generateTransformString = (dx: number, dy: number, sx: number, sy: number)
  *
  * @param {number} actual The number to check.
  * @param {number} target The target number.
- * @param {number} epsilon The allowed margin of error. Defaults to 1e-5
+ * @param {number} epsilon The allowed margin of error. Defaults to 1e-5.
  */
-const isCloseTo = (actual: number, target: number, epsilon?: number) =>
-    Math.abs(actual - target) <= (epsilon || 1e-5);
+const isCloseTo = (actual: number, target: number, epsilon: number = 1e-5) =>
+    Math.abs(actual - target) <= epsilon;
 
 /**
  * `dom-flip`

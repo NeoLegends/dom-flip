@@ -296,7 +296,9 @@ export default class DomFlip extends HTMLElement {
         }
 
         this._animationEnqueued = true;
-        requestAnimationFrame(() => {
+
+        // Render at microtask timing to prevent Safari flickers
+        Promise.resolve().then(() => {
             this._animationEnqueued = false;
             this._animateChangedElements();
         });

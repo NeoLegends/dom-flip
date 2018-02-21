@@ -5,7 +5,7 @@
 
 🔀 Smooth list animation for web components.
 
-This element is an implementation of the [FLIP-technique](https://aerotwist.com/blog/flip-your-animations/) for arbitrary elements. Simply place it around the elements you indend to move and they will smoothly slide over the screen.
+This element is an implementation of the [FLIP-technique](https://aerotwist.com/blog/flip-your-animations/) for arbitrary elements. Simply place it around the elements you indend to move and they will smoothly slide over the screen when moved.
 
 ## Installation
 This element lives on npm. Install with `yarn add dom-flip` or `npm install --save dom-flip`.
@@ -13,18 +13,54 @@ This element lives on npm. Install with `yarn add dom-flip` or `npm install --sa
 ## Usage
 You can use this element together with any templatizing element that modifies the DOM. The animated elements must be direct children of the `dom-flip` element.
 
-To be able to correlate changes in the model to changes to the DOM, this element requires that you give every element a unique ID. This must be an attribute on the element itself.
+To be able to correlate changes in the model to changes to the DOM, this element requires that you give every element a unique ID. This must be an attribute on the element itself and cannot be a property (because properties cannot be observed via MutationObserver).
 
+### Polymer's dom-repeat:
 ```html
 <dom-flip>
-    <template is="dom-repeat" items="[[items]]">
-        <my-item data-flip-id$="[[item.id]]">[[item.name]]</my-item>
-    </template>
+    <!--
+        If you change the order of the elements inside items, the elements will
+        smoothly glide to their new place.
+    -->
+    <dom-repeat items="[[items]]">
+        <template>
+            <my-item data-flip-id$="[[item.id]]">[[item.name]]</my-item>
+        </template
+    </dom-repeat>
 </dom-flip>
 ```
 
-## Usage with Polymer
-It is also special-cased to work with Polymer's `dom-repeat`. Although we wish it did, this element will not work with `<iron-list>` due to the virtualization. Maybe this can be fixed in the future.
+### lit-html:
+```ts
+const template = (items: { id: string, name: string }[]) => html`
+    <dom-flip>
+        ${items.map(item => html`<div data-flip-id="${item.id}">${item.name}</div>`)}
+    </dom-flip>
+`;
+
+// Render some items
+const result = template([
+    { id: "1", name: "Hello" },
+    { id: "2", name: ", " },
+    { id: "3", name: "World!" }
+]);
+render(result, renderNode);
+
+// ...
+
+// Change their order
+const result = template([
+    { id: "1", name: "Hello" },
+    { id: "3", name: "World!" },
+    { id: "2", name: ", " }
+]);
+
+// Positions are animated and the items will smoothly glide to their new place
+render(result, renderNode);
+```
+
+### iron-list
+Although we wish it did, this element will not work with `<iron-list>` due to the virtualization. Maybe this can be fixed in the future.
 
 ## License
 MIT

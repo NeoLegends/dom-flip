@@ -59,6 +59,20 @@ const isCloseTo = (actual: number, target: number, epsilon: number = 1e-5) =>
  *
  * FLIP move animations for web components.
  *
+ * Wrap this around your child elements and they will slide smoothly over the screen
+ * if their order or position changes.
+ *
+ * @example
+ * ```html
+ * <!-- The divs' positions will be animated if they change. -->
+ * <dom-flip>
+ *   <div>Item 1</div
+ *   <div>Item 2</div
+ *   <div>Item 3</div
+ *   <div>Item 4</div
+ * </dom-flip>
+ * ```
+ *
  * @demo demo/index.html
  * @see https://aerotwist.com/blog/flip-your-animations/
  */

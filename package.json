@@ -1,10 +1,18 @@
 {
   "name": "dom-flip",
-  "version": "0.2.2",
-  "description": "FLIP move for web components",
+  "version": "0.2.3",
+  "description": "Smooth position animation for web components",
   "main": "dist/dom-flip.js",
   "repository": "https://github.com/Festify/dom-flip.git",
+  "bugs": "https://github.com/Festify/dom-flip/issues",
   "author": "Moritz Gunz <moritz.gunz@gmail.com>",
+  "keywords": [
+    "animation",
+    "FLIP",
+    "move",
+    "magic-move",
+    "web components"
+  ],
   "license": "MIT",
   "private": false,
   "scripts": {

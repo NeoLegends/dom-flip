@@ -4,9 +4,9 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/Festify/dom-flip.svg)](https://greenkeeper.io/)
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/Festify/dom-flip)
 
-🔀 Smooth list animation for web components.
+🔀 Smooth position animation for web components.
 
-This element is an implementation of the [FLIP-technique](https://aerotwist.com/blog/flip-your-animations/) for arbitrary elements. Simply place it around the elements you indend to move and they will smoothly slide over the screen when moved.
+This element is an implementation of the [FLIP-technique](https://aerotwist.com/blog/flip-your-animations/) for arbitrary elements. Simply place it around the elements you indend to reorder and they will smoothly slide over the screen when moved.
 
 ## Installation
 This element lives on npm. Install with `yarn add dom-flip` or `npm install --save dom-flip`.

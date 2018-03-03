@@ -27,11 +27,6 @@ const enum AttributeNames {
 }
 
 /**
- * The regex used to parse the transform matrix string.
- */
-const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
-
-/**
  * Generates a CSS `translate`-rule compatible string that does a 2D transform.
  *
  * @param {number} dx the X delta
@@ -53,6 +48,11 @@ const generateTransformString = (dx: number, dy: number, sx: number, sy: number)
  */
 const isCloseTo = (actual: number, target: number, epsilon: number = 1e-5) =>
     Math.abs(actual - target) <= epsilon;
+
+/**
+ * The regex used to parse the transform matrix string.
+ */
+const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
 
 /**
  * `dom-flip`

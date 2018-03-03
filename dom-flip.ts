@@ -1,4 +1,16 @@
 /**
+ * All used attribute names.
+ */
+const enum AttributeNames {
+    Active = 'active',
+    AttrName = 'attr-name',
+    DelayMs = 'delay-ms',
+    DurationMs = 'duration-ms',
+    Easing = 'easing',
+    TransitionClassName = 'transition-class-name',
+}
+
+/**
  * Child metadata.
  */
 interface ChildData {
@@ -12,18 +24,6 @@ interface ChildData {
     scaleX: number;
     /** The scale on the y-axis. */
     scaleY: number;
-}
-
-/**
- * All used attribute names.
- */
-const enum AttributeNames {
-    Active = 'active',
-    AttrName = 'attr-name',
-    DelayMs = 'delay-ms',
-    DurationMs = 'duration-ms',
-    Easing = 'easing',
-    TransitionClassName = 'transition-class-name',
 }
 
 /**

@@ -139,11 +139,11 @@ export default class DomFlip extends HTMLElement {
      * The class name to apply when the elements are moving. This
      * only need be changed in case of conflicts.
      *
-     * Defaults to `transitioning`.
+     * Defaults to `dom-flip-transitioning`.
      *
      * @type String
      */
-    transitionClassName: string = 'transitioning';
+    transitionClassName: string = 'dom-flip-transitioning';
 
     /**
      * Whether a dom change event handler is enqueued for the current animation frame.

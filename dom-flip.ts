@@ -268,7 +268,7 @@ export default class DomFlip extends HTMLElement {
      */
     private _collectChildData(): Map<string, [HTMLElement, ChildData]> {
         const bbox = this.getBoundingClientRect();
-        const map = new Map();
+        const map = new Map<string, [HTMLElement, ChildData]>();
 
         for (const el of this._slot.assignedNodes()) {
             if (!(el instanceof HTMLElement)) {

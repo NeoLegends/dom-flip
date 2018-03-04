@@ -271,7 +271,7 @@ export default class DomFlip extends HTMLElement {
 
                 setTimeout(
                     () => el.classList.remove(this.transitionClassName),
-                    this.durationMs,
+                    this.durationMs + 50,
                 );
             });
         }

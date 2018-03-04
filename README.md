@@ -8,6 +8,10 @@
 
 This element is an implementation of the [FLIP-technique](https://aerotwist.com/blog/flip-your-animations/) for arbitrary elements. Simply place it around the elements you indend to reorder and they will smoothly slide over the screen when moved.
 
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/1683034/36944873-d6e8d81e-1fa4-11e8-9253-b1993cdcc794.gif">
+</p>
+
 ## Installation
 This element lives on npm. Install with `yarn add dom-flip` or `npm install --save dom-flip`.
 

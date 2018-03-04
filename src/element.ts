@@ -35,7 +35,7 @@ interface ChildData {
  * to performance because it causes layout thrashing. Therefore, we only use microtask
  * timing in WebKit and EdgeHTML browsers and proper rAF timing in all others.
  *
- * As soon as these bugs are fixed, we can use to rAF timing in all browsers.
+ * As soon as these bugs are fixed, we can revert to using rAF timing in all browsers.
  *
  * @see https://www.youtube.com/watch?v=cCOL7MC4Pl0
  */

@@ -206,7 +206,7 @@ export default class DomFlip extends HTMLElement {
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         switch (name) {
             case AttributeNames.Active:
-                this.active = !!newValue;
+                this.active = newValue != null;
                 this._updateListeners();
                 break;
             case AttributeNames.AttrName:

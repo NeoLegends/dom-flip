@@ -63,5 +63,8 @@ render(result, renderNode);
 ### iron-list
 Although we wish it did, this element will not work with `<iron-list>` due to the virtualization. Maybe this can be fixed in the future.
 
+## Performance
+The element is designed to avoid layout thrashing as much as possible by batching work into microtasks and to animation frame timing.
+
 ## License
 MIT

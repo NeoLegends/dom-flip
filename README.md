@@ -47,7 +47,7 @@ const result = template([
 ]);
 render(result, renderNode);
 
-// ...
+// ... next animation frame
 
 // Change their order
 const result = template([

@@ -115,7 +115,14 @@ export default class DomFlip extends HTMLElement {
      *
      * @type Boolean
      */
-    active: boolean = true;
+    get active() {
+        return this._active;
+    }
+
+    set active(val: boolean) {
+        this._active = val;
+        this._updateListeners();
+    }
 
     /**
      * The name of the attribute to use as model ID.
@@ -124,7 +131,14 @@ export default class DomFlip extends HTMLElement {
      *
      * @type String
      */
-    attrName: string = 'data-flip-id';
+    get attrName() {
+        return this._attrName;
+    }
+
+    set attrName(val: string) {
+        this._attrName = val;
+        this._updateListeners();
+    }
 
     /**
      * The CSS animation delay in milliseconds.
@@ -133,7 +147,14 @@ export default class DomFlip extends HTMLElement {
      *
      * @type Number
      */
-    delayMs: number = 0;
+    get delayMs() {
+        return this._delayMs;
+    }
+
+    set delayMs(val: number) {
+        this._delayMs = val;
+        this._render();
+    }
 
     /**
      * The CSS animation duration in milliseconds.
@@ -142,7 +163,14 @@ export default class DomFlip extends HTMLElement {
      *
      * @type Number
      */
-    durationMs: number = 200;
+    get durationMs() {
+        return this._durationMs;
+    }
+
+    set durationMs(val: number) {
+        this._durationMs = val;
+        this._render();
+    }
 
     /**
      * The CSS animation easing mode to use.
@@ -151,7 +179,14 @@ export default class DomFlip extends HTMLElement {
      *
      * @type String
      */
-    easing: string = 'ease-in-out';
+    get easing() {
+        return this._easing;
+    }
+
+    set easing(val: string) {
+        this._easing = val;
+        this._render();
+    }
 
     /**
      * The class name to apply when the elements are moving. This
@@ -161,12 +196,29 @@ export default class DomFlip extends HTMLElement {
      *
      * @type String
      */
-    transitionClassName: string = 'dom-flip-transitioning';
+    get transitionClassName() {
+        return this._transitionClassName;
+    }
+
+    set transitionClassName(val: string) {
+        this._transitionClassName = val;
+        this._render();
+    }
+
+    /**
+     * Backing field for `active`.
+     */
+    private _active: boolean = true;
 
     /**
      * Whether a dom change event handler is enqueued for the current animation frame.
      */
     private _animationEnqueued: boolean = false;
+
+    /**
+     * Backing field for `attrName`.
+     */
+    private _attrName: string = 'data-flip-id';
 
     /**
      * The last known client rects of the children keyed by their ID.
@@ -179,6 +231,21 @@ export default class DomFlip extends HTMLElement {
     private _childObserver: MutationObserver;
 
     /**
+     * Backing field for `delayMs`.
+     */
+    private _delayMs: number = 0;
+
+    /**
+     * Backing field for `durationMs`.
+     */
+    private _durationMs: number = 200;
+
+    /**
+     * Backing field for `easing`.
+     */
+    private _easing: string = 'ease-in-out';
+
+    /**
      * The shadow slot containing the children.
      */
     private _slot: HTMLSlotElement;
@@ -187,6 +254,11 @@ export default class DomFlip extends HTMLElement {
      * The bound event handler for mutation observer updating.
      */
     private _mutationObserverUpdateHandler;
+
+    /**
+     * Backing field for `transitionClassName`.
+     */
+    private _transitionClassName: string = 'dom-flip-transitioning';
 
     constructor() {
         super();
@@ -207,27 +279,21 @@ export default class DomFlip extends HTMLElement {
         switch (name) {
             case AttributeNames.Active:
                 this.active = newValue != null;
-                this._updateListeners();
                 break;
             case AttributeNames.AttrName:
                 this.attrName = newValue;
-                this._updateListeners();
                 break;
             case AttributeNames.DelayMs:
                 this.delayMs = Number(newValue);
-                this._render();
                 break;
             case AttributeNames.DurationMs:
                 this.durationMs = Number(newValue);
-                this._render();
                 break;
             case AttributeNames.Easing:
                 this.easing = newValue;
-                this._render();
                 break;
             case AttributeNames.TransitionClassName:
                 this.transitionClassName = newValue;
-                this._render();
                 break;
         }
     }

@@ -1,6 +1,6 @@
 {
   "name": "dom-flip",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Smooth position animation for web components",
   "main": "dist/dom-flip.js",
   "repository": "https://github.com/NeoLegends/dom-flip.git",

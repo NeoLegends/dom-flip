@@ -27,6 +27,24 @@ interface ChildData {
 }
 
 /**
+ * The method used for scheduling animations.
+ *
+ * As of March 2018, requestAnimationFrame callbacks run _after_ rendering in WebKit
+ * and EdgeHTML based browsers (which is a bug, it needs to run before), which causes
+ * flickering of list items. Using microtask timings fixes these issues, but is detrimental
+ * to performance because it causes layout thrashing. Therefore, we only use microtask
+ * timing in WebKit and EdgeHTML browsers and proper rAF timing in all others.
+ *
+ * As soon as these bugs are fixed, we can use to rAF timing in all browsers.
+ *
+ * @see https://www.youtube.com/watch?v=cCOL7MC4Pl0
+ */
+const batchCallback: (cb: () => void) => void =
+    (navigator.vendor.indexOf('Apple') !== -1 || navigator.userAgent.indexOf('Edge') !== -1)
+        ? cb => Promise.resolve().then(cb)
+        : requestAnimationFrame;
+
+/**
  * Generates a CSS `translate`-rule compatible string that does a 2D transform.
  *
  * @param {number} dx the X delta
@@ -313,8 +331,7 @@ export default class DomFlip extends HTMLElement {
 
         this._animationEnqueued = true;
 
-        // Render at microtask timing to prevent Safari flickers
-        Promise.resolve().then(() => {
+        batchCallback(() => {
             this._animationEnqueued = false;
             this._animateChangedElements();
         });

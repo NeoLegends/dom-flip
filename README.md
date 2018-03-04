@@ -12,7 +12,7 @@ This element is an implementation of the [FLIP-technique](https://aerotwist.com/
 This element lives on npm. Install with `yarn add dom-flip` or `npm install --save dom-flip`.
 
 ## Usage
-You can use this element together with any templatizing element that modifies the DOM. The animated elements must be direct children of the `dom-flip` element.
+You can use this element together with any element that modifies the DOM. The animated elements must be direct children of the `dom-flip` element.
 
 To be able to correlate changes in the model to changes to the DOM, this element requires that you give every element a unique ID. This must be an attribute on the element itself and cannot be a property (because properties cannot be observed via MutationObserver).
 

@@ -63,6 +63,9 @@ render(result, renderNode);
 ### iron-list
 Although we wish it did, this element will not work with `<iron-list>` due to the virtualization. Maybe this can be fixed in the future.
 
+### Automatic registration
+You can import the custom element class from `dom-flip/element` if you don't want it to automatically be registered within the custom elements registry.
+
 ## Performance
 The element is designed to avoid layout thrashing as much as possible by batching work into microtasks and to animation frame timing.
 

@@ -17,6 +17,6 @@
     "downlevelIteration": true
   },
   "files": [
-    "dom-flip.ts"
+    "src/dom-flip.ts"
   ]
 }

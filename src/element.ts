@@ -371,5 +371,3 @@ export default class DomFlip extends HTMLElement {
         `;
     }
 }
-
-customElements.define('dom-flip', DomFlip);

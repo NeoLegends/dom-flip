@@ -243,7 +243,7 @@ export default class DomFlip extends HTMLElement {
     /**
      * Backing field for `easing`.
      */
-    private _easing: string = 'ease-in-out';
+    private _easing: string = 'ease-out';
 
     /**
      * The shadow slot containing the children.

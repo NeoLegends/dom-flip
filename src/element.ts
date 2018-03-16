@@ -1,13 +1,15 @@
+declare global {
+    interface Window {
+        ShadyCSS?: any;
+    }
+}
+
 /**
  * All used attribute names.
  */
 const enum AttributeNames {
     Active = 'active',
     AttrName = 'attr-name',
-    DelayMs = 'delay-ms',
-    DurationMs = 'duration-ms',
-    Easing = 'easing',
-    TransitionClassName = 'transition-class-name',
 }
 
 /**
@@ -72,6 +74,29 @@ const isCloseTo = (actual: number, target: number, epsilon: number = 1e-5) =>
  */
 const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
 
+// tslint:disable:max-line-length
+
+/**
+ * The template element used for initially stamping dom-flip's DOM.
+ */
+const template = document.createElement('template') as HTMLTemplateElement;
+template.innerHTML = `
+    <style>
+        ::slotted(*) {
+            transition: transform var(--transition-duration, 200ms) var(--transition-easing, ease-out) var(--transition-delay, 0),
+                        opacity var(--transition-duration, 200ms) var(--transition-easing, ease-out) var(--transition-delay, 0);
+        }
+    </style>
+
+    <slot></slot>
+`;
+
+// tslint:enable
+
+if (window.ShadyCSS) {
+    window.ShadyCSS.prepareTemplate(template, 'dom-flip');
+}
+
 /**
  * `dom-flip`
  *
@@ -96,14 +121,7 @@ const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s
  */
 export default class DomFlip extends HTMLElement {
     static get observedAttributes(): string[] {
-        return [
-            AttributeNames.Active,
-            AttributeNames.AttrName,
-            AttributeNames.DelayMs,
-            AttributeNames.DurationMs,
-            AttributeNames.Easing,
-            AttributeNames.TransitionClassName,
-        ];
+        return [AttributeNames.Active, AttributeNames.AttrName];
     }
 
     /**
@@ -141,84 +159,19 @@ export default class DomFlip extends HTMLElement {
     }
 
     /**
-     * The CSS animation delay in milliseconds.
-     *
-     * Defaults to 0ms.
-     *
-     * @type Number
-     */
-    get delayMs() {
-        return this._delayMs;
-    }
-
-    set delayMs(val: number) {
-        this._delayMs = val;
-        this._render();
-    }
-
-    /**
-     * The CSS animation duration in milliseconds.
-     *
-     * Defaults to 200ms.
-     *
-     * @type Number
-     */
-    get durationMs() {
-        return this._durationMs;
-    }
-
-    set durationMs(val: number) {
-        this._durationMs = val;
-        this._render();
-    }
-
-    /**
-     * The CSS animation easing mode to use.
-     *
-     * Defaults to `ease-in-out`.
-     *
-     * @type String
-     */
-    get easing() {
-        return this._easing;
-    }
-
-    set easing(val: string) {
-        this._easing = val;
-        this._render();
-    }
-
-    /**
-     * The class name to apply when the elements are moving. This
-     * only need be changed in case of conflicts.
-     *
-     * Defaults to `dom-flip-transitioning`.
-     *
-     * @type String
-     */
-    get transitionClassName() {
-        return this._transitionClassName;
-    }
-
-    set transitionClassName(val: string) {
-        this._transitionClassName = val;
-        this._render();
-    }
-
-    /**
      * Backing field for `active`.
      */
     private _active: boolean = true;
 
     /**
-     * Whether a dom change event handler is enqueued for the current animation frame.
-     */
-    private _animationEnqueued: boolean = false;
-
-    /**
      * Backing field for `attrName`.
      */
     private _attrName: string = 'data-flip-id';
+
+    /**
+     * Whether a dom change event handler is enqueued for the current animation frame.
+     */
+    private _animationEnqueued: boolean = false;
 
     /**
      * The last known client rects of the children keyed by their ID.
@@ -231,21 +184,6 @@ export default class DomFlip extends HTMLElement {
     private _childObserver: MutationObserver;
 
     /**
-     * Backing field for `delayMs`.
-     */
-    private _delayMs: number = 0;
-
-    /**
-     * Backing field for `durationMs`.
-     */
-    private _durationMs: number = 200;
-
-    /**
-     * Backing field for `easing`.
-     */
-    private _easing: string = 'ease-out';
-
-    /**
      * The shadow slot containing the children.
      */
     private _slot: HTMLSlotElement;
@@ -255,21 +193,22 @@ export default class DomFlip extends HTMLElement {
      */
     private _mutationObserverUpdateHandler;
 
-    /**
-     * Backing field for `transitionClassName`.
-     */
-    private _transitionClassName: string = 'dom-flip-transitioning';
-
     constructor() {
         super();
 
         this._childObserver = new MutationObserver(() => this._enqueueAnimateChangedElements());
         this._mutationObserverUpdateHandler = () => this._updateMutationObserver();
-        this.attachShadow({ mode: 'open' });
     }
 
     connectedCallback() {
-        this._render();
+        if (window.ShadyCSS) {
+            window.ShadyCSS.styleElement(this);
+        }
+
+        if (!this.shadowRoot) {
+            this.attachShadow({ mode: 'open' });
+        }
+        this.shadowRoot!.appendChild(template.content.cloneNode(true));
 
         this._slot = this.shadowRoot!.querySelector('slot') as HTMLSlotElement;
         this._updateListeners();
@@ -282,18 +221,6 @@ export default class DomFlip extends HTMLElement {
                 break;
             case AttributeNames.AttrName:
                 this.attrName = newValue;
-                break;
-            case AttributeNames.DelayMs:
-                this.delayMs = Number(newValue);
-                break;
-            case AttributeNames.DurationMs:
-                this.durationMs = Number(newValue);
-                break;
-            case AttributeNames.Easing:
-                this.easing = newValue;
-                break;
-            case AttributeNames.TransitionClassName:
-                this.transitionClassName = newValue;
                 break;
         }
     }
@@ -322,23 +249,14 @@ export default class DomFlip extends HTMLElement {
                 continue;
             }
 
-            el.classList.remove(this.transitionClassName);
-
             // Revert new layout into old positions
             el.style.opacity = String(old.opacity);
             el.style.transform = generateTransformString(dL, dT, old.scaleX, old.scaleY);
 
             requestAnimationFrame(() => {
-                el.classList.add(this.transitionClassName);
-
                 // Remove our reverts and let animation play
                 el.style.opacity = String(n.opacity);
                 el.style.transform = generateTransformString(0, 0, n.scaleX, n.scaleY);
-
-                setTimeout(
-                    () => el.classList.remove(this.transitionClassName),
-                    this.durationMs + 50,
-                );
             });
         }
 
@@ -436,21 +354,5 @@ export default class DomFlip extends HTMLElement {
             }));
 
         this._enqueueAnimateChangedElements();
-    }
-
-    /**
-     * Render the shadow dom contents.
-     */
-    private _render() {
-        this.shadowRoot!.innerHTML = `
-            <style>
-                ::slotted(.${this.transitionClassName}) {
-                    transition: transform ${this.durationMs}ms ${this.easing} ${this.delayMs}ms,
-                                opacity ${this.durationMs}ms ${this.easing} ${this.delayMs}ms;
-                }
-            </style>
-
-            <slot></slot>
-        `;
     }
 }

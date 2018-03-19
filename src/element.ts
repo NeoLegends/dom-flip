@@ -74,6 +74,13 @@ const isCloseTo = (actual: number, target: number, epsilon: number = 1e-5) =>
  */
 const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
 
+/**
+ * The class name applied to the element to indicate that it is currently moving.
+ *
+ * @type {string}
+ */
+const transitionClassName = 'dom-flip-transitioning';
+
 // tslint:disable:max-line-length
 
 /**
@@ -82,9 +89,8 @@ const transformRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s
 const template = document.createElement('template') as HTMLTemplateElement;
 template.innerHTML = `
     <style>
-        ::slotted(*) {
-            transition: transform var(--transition-duration, 200ms) var(--transition-easing, ease-out) var(--transition-delay, 0),
-                        opacity var(--transition-duration, 200ms) var(--transition-easing, ease-out) var(--transition-delay, 0);
+        ::slotted(.${transitionClassName}) {
+            transition: var(--transition, transform 200ms ease-out, opacity 200ms ease-out);
         }
     </style>
 
@@ -249,6 +255,8 @@ export default class DomFlip extends HTMLElement {
                 continue;
             }
 
+            el.classList.remove(transitionClassName);
+
             // Revert new layout into old positions
             el.style.opacity = String(old.opacity);
             el.style.transform = generateTransformString(dL, dT, old.scaleX, old.scaleY);
@@ -257,6 +265,7 @@ export default class DomFlip extends HTMLElement {
                 // Remove our reverts and let animation play
                 el.style.opacity = String(n.opacity);
                 el.style.transform = generateTransformString(0, 0, n.scaleX, n.scaleY);
+                el.classList.add(transitionClassName);
             });
         }
 

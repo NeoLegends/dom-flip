@@ -232,6 +232,25 @@ export default class DomFlip extends HTMLElement {
     }
 
     /**
+     * Updates cached child position data.
+     *
+     * If the element is hidden using `display: none` it will pickup incorrect children
+     * positional data which will lead to artifacts on the first visible change after
+     * the element was unhidden again.
+     *
+     * This can be prevented by re-collecting the positional data once every time the
+     * element is unhidden. This needs to be done manually, however, because the element
+     * cannot detect that itself.
+     *
+     * Caution: While the process itself will be run during animation frame timing, doing
+     * this too often could still degrade performance, as the element needs to access the
+     * computed style values of every child.
+     */
+    refresh() {
+        batchCallback(() => this._childData = this._collectChildData());
+    }
+
+    /**
      * Animates the transition of the elements that have moved.
      */
     private _animateChangedElements() {

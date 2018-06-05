@@ -40,6 +40,8 @@ interface ChildData {
  * As soon as these bugs are fixed, we can revert to using rAF timing in all browsers.
  *
  * @see https://youtu.be/cCOL7MC4Pl0?t=1394
+ * @see https://bugs.webkit.org/show_bug.cgi?id=177484
+ * @see https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/15469349/
  */
 const batchCallback: (cb: () => void) => void =
     (navigator.vendor.indexOf('Apple') !== -1 || navigator.userAgent.indexOf('Edge') !== -1)

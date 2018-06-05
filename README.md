@@ -6,6 +6,8 @@
 
 🔀 Smooth position animation for web components.
 
+[Demo](https://neolegends.github.io/dom-flip/)
+
 This element is an implementation of the [FLIP-technique](https://aerotwist.com/blog/flip-your-animations/) for arbitrary elements. Simply place it around the elements you indend to reorder and they will smoothly slide over the screen when moved.
 
 <p align="center">

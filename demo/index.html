@@ -6,23 +6,18 @@
 
     <title>dom-flip demo</title>
 
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-
-    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
-    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-    <link rel="import" href="../../polymer/lib/elements/dom-repeat.html">
-    <link rel="import" href="../../paper-button/paper-button.html">
-    <link rel="import" href="../dom-flip.html">
-
-    <custom-style>
-      <style is="custom-style" include="demo-pages-shared-styles">
-      </style>
-    </custom-style>
+    <script type="module" src="https://unpkg.com/@webcomponents/webcomponentsjs/webcomponents-loader.js?module"></script>
+    <script type="module" src="https://unpkg.com/@polymer/iron-demo-helpers@3.0.0-pre.19/demo-snippet.js?module"></script>
+    <script type="module" src="https://unpkg.com/dom-flip/dist/dom-flip.js?module"></script>
   </head>
   <body>
     <div class="vertical-section-container centered">
       <h3>Basic dom-flip demo</h3>
+
       <demo-snippet>
+        <button id="btn">Shuffle</button>
+        <button id="btn2">Add row</button>
+
         <template>
           <dom-flip>
             <p data-flip-id="1">When these Elements</p>
@@ -33,5 +28,35 @@
         </template>
       </demo-snippet>
     </div>
+
+    <script type="module">
+      let counter = 5;
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const flip = document.querySelector('dom-flip');
+
+        document.getElementById('btn').addEventListener('click', () => {
+          const it = Array.from(document.querySelectorAll('dom-flip p'));
+
+          while (flip.hasChildNodes()) {
+            flip.removeChild(flip.firstChild);
+          }
+
+          while (it.length > 0) {
+            const idx = Math.floor(Math.random() * it.length);
+            flip.appendChild(it[idx]);
+            it.splice(idx, 1);
+          }
+        });
+
+        document.getElementById('btn2').addEventListener('click', () => {
+          const p = document.createElement('p');
+          p.setAttribute('data-flip-id', String(counter++));
+          p.textContent = `Row No. ${counter}`;
+
+          flip.appendChild(p);
+        });
+      }, false);
+    </script>
   </body>
 </html>

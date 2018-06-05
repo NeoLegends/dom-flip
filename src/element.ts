@@ -282,7 +282,7 @@ export default class DomFlip extends HTMLElement {
             el.style.opacity = String(old.opacity);
             el.style.transform = generateTransformString(dL, dT, old.scaleX, old.scaleY);
 
-            requestAnimationFrame(() => {
+            requestAnimationFrame(() => { // This should not be batchCallback here
                 // Remove our reverts and let animation play
                 el.style.opacity = String(n.opacity);
                 el.style.transform = generateTransformString(0, 0, n.scaleX, n.scaleY);

@@ -25,6 +25,7 @@
     "typescript": "^2.6.2"
   },
   "files": [
+    "demo/*.html",
     "dist/*.{js,d.ts,js.map}"
   ]
 }

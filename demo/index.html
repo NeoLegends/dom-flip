@@ -33,9 +33,8 @@
       let counter = 5;
 
       document.addEventListener('DOMContentLoaded', () => {
-        const flip = document.querySelector('dom-flip');
-
         document.getElementById('btn').addEventListener('click', () => {
+          const flip = document.querySelector('dom-flip');
           const it = Array.from(document.querySelectorAll('dom-flip p'));
 
           while (flip.hasChildNodes()) {
@@ -50,6 +49,7 @@
         });
 
         document.getElementById('btn2').addEventListener('click', () => {
+          const flip = document.querySelector('dom-flip');
           const p = document.createElement('p');
           p.setAttribute('data-flip-id', String(counter++));
           p.textContent = `Row No. ${counter}`;

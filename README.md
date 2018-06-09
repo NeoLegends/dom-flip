@@ -1,8 +1,8 @@
 # \<dom-flip\>
 
 [![Build Status](https://travis-ci.org/NeoLegends/dom-flip.svg?branch=master)](https://travis-ci.org/NeoLegends/dom-flip)
-[![Greenkeeper badge](https://badges.greenkeeper.io/Festify/dom-flip.svg)](https://greenkeeper.io/)
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/Festify/dom-flip)
+[![Greenkeeper badge](https://badges.greenkeeper.io/NeoLegends/dom-flip.svg)](https://greenkeeper.io/)
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/NeoLegends/dom-flip)
 
 🔀 Smooth position animation for web components.
 

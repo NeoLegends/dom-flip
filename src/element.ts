@@ -174,8 +174,8 @@ export default class DomFlip extends HTMLElement {
 
         if (!this.shadowRoot) {
             this.attachShadow({ mode: 'open' });
+            this.shadowRoot!.appendChild(template.content.cloneNode(true));
         }
-        this.shadowRoot!.appendChild(template.content.cloneNode(true));
 
         this._slot = this.shadowRoot!.querySelector('slot') as HTMLSlotElement;
         this._updateListeners();

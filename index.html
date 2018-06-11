@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>dom-flip demo</title>
+
+    <script type="module" src="https://unpkg.com/@webcomponents/webcomponentsjs/webcomponents-loader.js?module"></script>
+    <script type="module" src="https://unpkg.com/@polymer/iron-demo-helpers@3.0.0-pre.19/demo-snippet.js?module"></script>
+    <script type="module" src="https://unpkg.com/dom-flip/dist/dom-flip.js?module"></script>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic dom-flip demo</h3>
+
+      <demo-snippet>
+        <button id="btn">Shuffle</button>
+        <button id="btn2">Add row</button>
+
+        <template>
+          <dom-flip>
+            <p data-flip-id="1">When these Elements</p>
+            <p data-flip-id="2">change position,</p>
+            <p data-flip-id="3">or something is added in</p>
+            <p data-flip-id="4">between, they will animate.</p>
+          </dom-flip>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <script type="module">
+      let counter = 5;
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('btn').addEventListener('click', () => {
+          const flip = document.querySelector('dom-flip');
+          const it = Array.from(document.querySelectorAll('dom-flip p'));
+
+          while (flip.hasChildNodes()) {
+            flip.removeChild(flip.firstChild);
+          }
+
+          while (it.length > 0) {
+            const idx = Math.floor(Math.random() * it.length);
+            flip.appendChild(it[idx]);
+            it.splice(idx, 1);
+          }
+        });
+
+        document.getElementById('btn2').addEventListener('click', () => {
+          const flip = document.querySelector('dom-flip');
+          const p = document.createElement('p');
+          p.setAttribute('data-flip-id', String(counter++));
+          p.textContent = `Row No. ${counter}`;
+
+          flip.appendChild(p);
+        });
+      }, false);
+    </script>
+  </body>
+</html>
